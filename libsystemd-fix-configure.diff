@@ -1,0 +1,36 @@
+--- tigervnc-1.6.0/unix/xserver/configure.ac.old1	2016-03-29 19:04:48.907989966 +0200
++++ tigervnc-1.6.0/unix/xserver/configure.ac	2016-03-29 19:15:39.531319672 +0200
+@@ -839,17 +839,28 @@
+ 	[WITH_SYSTEMD_DAEMON=$withval], [WITH_SYSTEMD_DAEMON=auto])
+ PKG_CHECK_MODULES([SYSTEMD_DAEMON], [libsystemd-daemon],
+                   [HAVE_SYSTEMD_DAEMON=yes],
+-                  [PKG_CHECK_MODULES([SYSTEMD_DAEMON], [libsystemd],
+-                                     [HAVE_SYSTEMD_DAEMON=yes], [HAVE_SYSTEMD_DAEMON=no])])
++                  [HAVE_SYSTEMD_DAEMON=no])
+ if test "x$WITH_SYSTEMD_DAEMON" = xauto; then
+ 	WITH_SYSTEMD_DAEMON="$HAVE_SYSTEMD_DAEMON"
+ fi
+-if test "x$WITH_SYSTEMD_DAEMON" = xyes; then
++if test "x$WITH_SYSTEMD_DAEMON" = xyes ; then
++	if test -a "x$HAVE_SYSTEMD_DAEMON" = xyes; then
++		AC_DEFINE(HAVE_SYSTEMD_DAEMON, 1, [Define to 1 if libsystemd-daemon is available])
++		REQUIRED_LIBS="$REQUIRED_LIBS libsystemd-daemon"
++	else
++		PKG_CHECK_MODULES([SYSTEMD_DAEMON], [libsystemd], [HAVE_SYSTEMD_DAEMON=yes], [HAVE_SYSTEMD_DAEMON=no])
++
++		if test "x$HAVE_SYSTEMD_DAEMON" = xyes; then
++			AC_DEFINE(HAVE_SYSTEMD_DAEMON, 1, [Define to 1 if libsystemd-daemon is available])
++			REQUIRED_LIBS="$REQUIRED_LIBS libsystemd"
++		fi
++	fi
++fi
++
++if test "x$WITH_SYSTEMD_DAEMON" = xyes -a ; then
+ 	if test "x$HAVE_SYSTEMD_DAEMON" = xno; then
+ 		AC_MSG_ERROR([systemd support requested but no library has been found])
+ 	fi
+-	AC_DEFINE(HAVE_SYSTEMD_DAEMON, 1, [Define to 1 if libsystemd-daemon is available])
+-	REQUIRED_LIBS="$REQUIRED_LIBS libsystemd-daemon"
+ fi
+ AM_CONDITIONAL([HAVE_SYSTEMD_DAEMON], [test "x$HAVE_SYSTEMD_DAEMON" = "xyes"])
+ 
