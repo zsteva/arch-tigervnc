@@ -24,13 +24,15 @@ source=($pkgname-$pkgver.tar.gz::https://github.com/TigerVNC/tigervnc/archive/v$
 	vncserver.service
 	vncviewer.desktop
 	gethomedir.patch
-	xorg118.patch)
+	xorg118.patch
+	libsystemd-fix-configure.diff)
 md5sums=('78b736445781d86c48e942465a391ccc'
          '3c1c1057d3ad27380d8dd87ffcc182cd'
          '1aad8f06504b3e29a24ccfbaab617973'
          'b200d83c60e80c6f9693ea19a2d9f5b0'
          '22f1523a0eca56ad79cfabd0db6e2cf6'
-         '2fd32181679077eb7f7ca06cf25f443f')
+         '2fd32181679077eb7f7ca06cf25f443f'
+	'097ba6150e4cd1ed33c1bdade3bab529')
 
 prepare() {
   cd ${srcdir}/${pkgname}-${pkgver}
@@ -42,6 +44,7 @@ prepare() {
   cd unix/xserver
   cp -r ${srcdir}/xorg-server-${_xorgver}/* .
   patch -Np1 -i ../xserver117.patch
+  patch -Np3 -i ${srcdir}/libsystemd-fix-configure.diff
 }
 
 build() {
